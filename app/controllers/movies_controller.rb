@@ -8,6 +8,7 @@ class MoviesController < ApplicationController
 
   def index
     column_names = ['title', 'release_date']
+    @all_ratings = Movie.ratings
     @sort = params[:sort].to_s
     if column_names.include?(@sort)
       @movies = Movie.order(@sort)
