@@ -10,10 +10,18 @@ class MoviesController < ApplicationController
     column_names = ['title', 'release_date']
     @all_ratings = Movie.ratings
     @sort = params[:sort].to_s
-    if column_names.include?(@sort)
-      @movies = Movie.order(@sort)
+    
+    # Retrieve checked ratings
+    if params[:ratings]!=nil
+      checked_ratings = params[:ratings].keys
     else
-      @movies = Movie.all
+      checked_ratings = @all_ratings
+    end
+
+    if column_names.include?(@sort)
+      @movies = Movie.find(:all, :conditions => {:rating => checked_ratings}, :order => @sort)
+    else
+      @movies = Movie.find(:all, :conditions => {:rating => checked_ratings})
     end
   end
 
