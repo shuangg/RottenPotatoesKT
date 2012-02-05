@@ -8,14 +8,20 @@ class MoviesController < ApplicationController
 
   def index
     column_names = ['title', 'release_date']
+    @first_load = true
     @all_ratings = Movie.ratings
     @sort = params[:sort].to_s
     
+    # First load logic
+    @first_load = false unless params[:first_load]==nil
+
     # Retrieve checked ratings
-    if params[:ratings]!=nil
+    if @first_load==true
+      @checked_ratings = @all_ratings
+    elsif params[:ratings]!=nil
       @checked_ratings = params[:ratings].keys
     else
-      @checked_ratings = @all_ratings
+      @checked_ratings = []
     end
 
     if column_names.include?(@sort)
