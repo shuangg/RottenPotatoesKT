@@ -13,15 +13,15 @@ class MoviesController < ApplicationController
     
     # Retrieve checked ratings
     if params[:ratings]!=nil
-      checked_ratings = params[:ratings].keys
+      @checked_ratings = params[:ratings].keys
     else
-      checked_ratings = @all_ratings
+      @checked_ratings = @all_ratings
     end
 
     if column_names.include?(@sort)
-      @movies = Movie.find(:all, :conditions => {:rating => checked_ratings}, :order => @sort)
+      @movies = Movie.find(:all, :conditions => {:rating => @checked_ratings}, :order => @sort)
     else
-      @movies = Movie.find(:all, :conditions => {:rating => checked_ratings})
+      @movies = Movie.find(:all, :conditions => {:rating => @checked_ratings})
     end
   end
 
