@@ -5,14 +5,14 @@
   Include: 
   - @all_ratings.each do |rating|
     = rating
-    = check_box_tag("ratings[#{rating}]", "1", @checked_ratings.include?(rating))
+    = check_box_tag("ratings[#{rating}]", "1", @ratings.include?(rating))
   = hidden_field_tag('sort', @sort)
   = submit_tag 'Refresh'
 
 %table#movies
   %thead
-    - title_header = link_to "Movies Title", {:sort => 'title', :ratings => @checked_ratings_hash}, {:id => 'title_header'}
-    - release_date_header = link_to "Release Date", {:sort => 'release_date', :ratings => @checked_ratings_hash}, {:id => 'release_date_header'}
+    - title_header = link_to "Movies Title", {:sort => 'title', :ratings => @ratings}, {:id => 'title_header'}
+    - release_date_header = link_to "Release Date", {:sort => 'release_date', :ratings => @ratings}, {:id => 'release_date_header'}
     %tr
       - if @sort=='title'
         %th.hilite= title_header

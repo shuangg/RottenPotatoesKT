@@ -7,21 +7,46 @@ class MoviesController < ApplicationController
   end
 
   def index
+    # Retrieve ratings from movies table
     @all_ratings = Movie.ratings
-    @sort = params[:sort].to_s
-    
-    # Retrieve checked ratings
-    if params[:ratings]!=nil
-      @checked_ratings = params[:ratings].keys
-      @checked_ratings_hash = params[:ratings]
-    else
-      @checked_ratings = @all_ratings
-    end
 
-    if ['title', 'release_date'].include?(@sort)
-      @movies = Movie.find(:all, :conditions => {:rating => @checked_ratings}, :order => @sort)
+    # COLUMN SORTING LOGIC
+    if params[:sort]!=nil
+      # Use user-specificd sort filter
+      @sort= params[:sort].to_s
+      # Update session state
+      session[:sort]= @sort
+    elsif session[:sort]!=nil
+      # Restore session state
+      @sort= session[:sort]
     else
-      @movies = Movie.find(:all, :conditions => {:rating => @checked_ratings})
+      @sort= nil
+    end
+    
+    # RATING FILTER LOGIC
+    if params[:ratings]!=nil
+      # Use user-specified rating filters
+      @ratings = params[:ratings]
+      # Update state
+      session[:ratings] = @ratings
+    elsif session[:ratings]!=nil
+      # Restore rating filters from if there exists a previous session
+      @ratings = session[:ratings]
+    else # First Load of page... show all ratings
+      # Create a hash to simulate ratings[] value retrieved from checkboxes
+      ratings_hash = {}
+      @all_ratings.each {|rating| ratings_hash[rating]="1"}
+      # Set to instance var
+      @ratings = ratings_hash
+      # Update state
+      session[:ratings] = @ratings
+    end
+    
+    # LOAD FILTERED/SORTED MOVIE RECORDS
+    if ['title', 'release_date'].include?(@sort)
+      @movies = Movie.find(:all, :conditions => {:rating => @ratings.keys}, :order => @sort)
+    else
+      @movies = Movie.find(:all, :conditions => {:rating => @ratings.keys})
     end
   end
 
