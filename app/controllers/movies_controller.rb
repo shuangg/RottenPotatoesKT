@@ -11,35 +11,24 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.ratings
 
     # COLUMN SORTING LOGIC
-    if params[:sort]!=nil
-      # Use user-specificd sort filter
-      @sort= params[:sort].to_s
-      # Update session state
-      session[:sort]= @sort
-    elsif session[:sort]!=nil
-      # Restore session state
-      @sort= session[:sort]
+    if params[:sort]==nil
+      @sort= session[:sort] # Restore session
     else
-      @sort= nil
+      @sort= params[:sort]
+      session[:sort]= @sort # Update session
     end
-    
-    # RATING FILTER LOGIC
-    if params[:ratings]!=nil
-      # Use user-specified rating filters
-      @ratings = params[:ratings]
-      # Update state
-      session[:ratings] = @ratings
-    elsif session[:ratings]!=nil
-      # Restore rating filters from if there exists a previous session
-      @ratings = session[:ratings]
-    else # First Load of page... show all ratings
-      # Create a hash to simulate ratings[] value retrieved from checkboxes
-      ratings_hash = {}
-      @all_ratings.each {|rating| ratings_hash[rating]="1"}
-      # Set to instance var
-      @ratings = ratings_hash
-      # Update state
-      session[:ratings] = @ratings
+
+    # RATING FILTER LOGIC (set @ratings to correct hash)
+    if params[:commit]=='Refresh'
+      if params[:ratings]!=nil
+        @ratings = params[:ratings] # Should be a hash
+      else
+        # It's nil... must create empty hash
+        @ratings = {}
+      end
+      session[:ratings] = @ratings # Update session
+    else
+      @ratings= session[:ratings] # Restore session
     end
     
     # LOAD FILTERED/SORTED MOVIE RECORDS
