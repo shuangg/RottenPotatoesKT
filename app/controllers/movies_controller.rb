@@ -28,7 +28,12 @@ class MoviesController < ApplicationController
       end
       session[:ratings] = @ratings # Update session
     else
-      @ratings= session[:ratings] # Restore session
+      if session[:ratings]==nil
+        @ratings= {}
+      else
+        @ratings=session[:ratings] # Restore session
+      end
+      session[:ratings] = @ratings
     end
     
     # LOAD FILTERED/SORTED MOVIE RECORDS
