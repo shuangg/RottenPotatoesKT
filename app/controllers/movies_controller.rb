@@ -7,40 +7,29 @@ class MoviesController < ApplicationController
   end
 
   def index
-    # Retrieve ratings from movies table
-    @all_ratings = Movie.ratings
+    no_params = params[:sort]==nil and params[:ratings]==nil
+    has_session = session[:sort]!=nil or session[:ratings]!=nil
 
-    # COLUMN SORTING LOGIC
-    if params[:sort]==nil
-      @sort= session[:sort] # Restore session
+    if no_params and has_session
+      redirect_to movies_path(:sort => session[:sort], :ratings => session[:ratings])
     else
+      # Retrieve ratings from movies table
+      @all_ratings = Movie.ratings
+
+      # Update Sort Param and rating filter params
       @sort= params[:sort]
+      params[:ratings]==nil ? @ratings={} : @ratings = params[:ratings]
+      
+      # Update stored session data
       session[:sort]= @sort # Update session
-    end
-
-    # RATING FILTER LOGIC (set @ratings to correct hash)
-    if params[:commit]=='Refresh'
-      if params[:ratings]!=nil
-        @ratings = params[:ratings] # Should be a hash
-      else
-        # It's nil... must create empty hash
-        @ratings = {}
-      end
       session[:ratings] = @ratings # Update session
-    else
-      if session[:ratings]==nil
-        @ratings= {}
-      else
-        @ratings=session[:ratings] # Restore session
-      end
-      session[:ratings] = @ratings
-    end
     
-    # LOAD FILTERED/SORTED MOVIE RECORDS
-    if ['title', 'release_date'].include?(@sort)
-      @movies = Movie.find(:all, :conditions => {:rating => @ratings.keys}, :order => @sort)
-    else
-      @movies = Movie.find(:all, :conditions => {:rating => @ratings.keys})
+      # LOAD FILTERED/SORTED MOVIE RECORDS
+      if ['title', 'release_date'].include?(@sort)
+        @movies = Movie.find(:all, :conditions => {:rating => @ratings.keys}, :order => @sort)
+      else
+        @movies = Movie.find(:all, :conditions => {:rating => @ratings.keys})
+      end
     end
   end
 
